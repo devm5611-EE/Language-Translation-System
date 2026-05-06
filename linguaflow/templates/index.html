@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinguaFlow — AI Translation</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     NAVIGATION
+═══════════════════════════════════════════════════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a class="nav-brand" href="#" data-page="home">
+      <span class="brand-icon">🌐</span>
+      <span class="brand-name">LinguaFlow</span>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#" class="nav-link" data-page="home">Home</a></li>
+      <li><a href="#" class="nav-link auth-required" data-page="translate">Translate</a></li>
+      <li><a href="#" class="nav-link auth-required" data-page="history">History</a></li>
+      <li><a href="#" class="nav-link admin-only" data-page="admin">Admin</a></li>
+      <li><a href="#" class="nav-link auth-required" data-page="profile">Profile</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀️</button>
+
+      <div class="nav-auth" id="navGuest">
+        <button class="btn btn-ghost" id="btnNavLogin">Log in</button>
+        <button class="btn btn-primary" id="btnNavRegister">Get started</button>
+      </div>
+
+      <div class="nav-user hidden" id="navUser">
+        <span class="user-avatar" id="userAvatar">JD</span>
+        <button class="btn btn-ghost btn-sm" id="btnLogout">Log out</button>
+      </div>
+    </div>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TOAST NOTIFICATIONS
+═══════════════════════════════════════════════════════════════ -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: HOME
+     No style="display:none" — this is the default visible page.
+     showPage("home") is called on DOMContentLoaded in main.js.
+═══════════════════════════════════════════════════════════════ -->
+<main id="pageHome" class="page">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+    </div>
+    <div class="container hero-content">
+      <div class="hero-badge">
+        <span>✨</span> Powered by AI Translation Engine
+      </div>
+      <h1 class="hero-title">
+        Translate anything,<br />
+        <span class="gradient-text">instantly.</span>
+      </h1>
+      <p class="hero-subtitle">
+        Break language barriers with AI-powered translation supporting 100+ languages.
+        Real-time detection, high confidence scores, and seamless accuracy.
+      </p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg" id="btnHeroStart">
+          Start translating free →
+        </button>
+        <button class="btn btn-outline btn-lg" id="btnHeroRegister">
+          Create account
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="stat-value">100+</span>
+          <span class="stat-label">Languages</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-value">2.4s</span>
+          <span class="stat-label">Avg response</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-value">98.2%</span>
+          <span class="stat-label">Accuracy rate</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-value">10M+</span>
+          <span class="stat-label">Translations</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo preview strip -->
+  <section class="demo-strip">
+    <div class="container">
+      <div class="demo-card">
+        <div class="demo-input">
+          <span class="demo-lang">🇬🇧 English</span>
+          <p>"The future belongs to those who believe in the beauty of their dreams."</p>
+        </div>
+        <div class="demo-arrow">⇄</div>
+        <div class="demo-output">
+          <span class="demo-lang">🇫🇷 French</span>
+          <p>"L'avenir appartient à ceux qui croient en la beauté de leurs rêves."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>Everything you need</h2>
+        <p>A complete platform for seamless multilingual communication.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3>Auto Language Detection</h3>
+          <p>Instantly identify the source language with confidence scoring. No manual selection needed — just paste and translate.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Real-time Translation</h3>
+          <p>Get translations in 2–5 seconds with our optimized pipeline. Redis caching ensures repeated phrases are lightning fast.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📚</div>
+          <h3>Translation History</h3>
+          <p>Every translation saved and searchable. Filter by language pair, search content, and reuse previous translations instantly.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Secure &amp; Private</h3>
+          <p>JWT authentication, bcrypt password hashing, rate limiting, and input sanitization protect your data at every layer.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🗣️</div>
+          <h3>Speech Integration</h3>
+          <p>Speak your text or listen to translations with built-in speech-to-text and text-to-speech support across major languages.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Admin Analytics</h3>
+          <p>Full admin panel with usage metrics, user management, most-used language pairs, and real-time monitoring dashboards.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="cta-banner">
+    <div class="container">
+      <h2>Ready to break language barriers?</h2>
+      <p>Join thousands of users translating with confidence.</p>
+      <button class="btn btn-primary btn-lg" id="btnCtaStart">Get started for free</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: TRANSLATE
+     style="display:none" — JS sets style.display="block" via showPage()
+═══════════════════════════════════════════════════════════════ -->
+<main id="pageTranslate" class="page" style="display:none">
+  <div class="container page-container">
+
+    <div class="page-header">
+      <div>
+        <h1>Translation Dashboard</h1>
+        <p>Translate text across 100+ languages with AI precision</p>
+      </div>
+      <div class="cache-badge" id="cacheBadge">
+        <span class="cache-dot"></span>
+        <span id="cacheStatus">Ready</span>
+      </div>
+    </div>
+
+    <!-- Quick stats bar -->
+    <div class="stats-bar">
+      <div class="stat-pill">
+        <span class="stat-pill-label">Today's Translations</span>
+        <span class="stat-pill-value" id="statToday">0</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-pill-label">Avg Confidence</span>
+        <span class="stat-pill-value" id="statConfidence">—</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-pill-label">Last Response Time</span>
+        <span class="stat-pill-value" id="statResponseTime">—</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-pill-label">Characters Translated</span>
+        <span class="stat-pill-value" id="statChars">0</span>
+      </div>
+    </div>
+
+    <!-- Translation panel -->
+    <div class="translate-panel">
+
+      <!-- Source -->
+      <div class="translate-box source-box">
+        <div class="translate-box-header">
+          <div class="lang-selector-wrap">
+            <select class="lang-select" id="sourceLangSelect" aria-label="Source language">
+              <option value="auto">🔍 Auto Detect</option>
+            </select>
+          </div>
+          <div class="source-actions">
+            <button class="icon-btn" id="btnMic" title="Speech to text" aria-label="Start voice input">🎤</button>
+            <button class="icon-btn hidden" id="btnStopMic" title="Stop recording" aria-label="Stop recording">⏹️</button>
+          </div>
+        </div>
+        <textarea
+          id="sourceText"
+          class="translate-textarea"
+          placeholder="Enter text to translate..."
+          maxlength="5000"
+          aria-label="Source text"
+        ></textarea>
+        <div class="translate-box-footer">
+          <span class="char-count"><span id="charCount">0</span> / 5000</span>
+          <button class="icon-btn" id="btnClearSource" title="Clear text" aria-label="Clear source text">✕</button>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="translate-controls">
+        <select class="model-select" id="modelSelect" aria-label="Select AI model">
+          <option value="llama3-70b-8192">Llama 3 70B</option>
+          <option value="llama3-8b-8192">Llama 3 8B</option>
+          <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+          <option value="gemma2-9b-it">Gemma 2 9B</option>
+          <option value="gemma-7b-it">Gemma 7B</option>
+        </select>
+        <button class="btn-swap" id="btnSwapLangs" title="Swap languages" aria-label="Swap languages">⇄</button>
+        <button class="btn btn-primary" id="btnTranslate">Translate</button>
+      </div>
+
+      <!-- Target -->
+      <div class="translate-box target-box">
+        <div class="translate-box-header">
+          <div class="lang-selector-wrap">
+            <select class="lang-select" id="targetLangSelect" aria-label="Target language">
+              <option value="">Select language</option>
+            </select>
+          </div>
+          <div class="target-actions">
+            <button class="icon-btn" id="btnCopyResult" title="Copy translation" aria-label="Copy translation">📋</button>
+            <button class="icon-btn" id="btnSpeakResult" title="Listen to translation" aria-label="Speak translation">🔊</button>
+            <button class="icon-btn" id="btnDownloadResult" title="Download as text" aria-label="Download translation">⬇️</button>
+            <button class="icon-btn" id="btnShareResult" title="Share translation" aria-label="Share translation">↗️</button>
+          </div>
+        </div>
+        <div class="translate-result" id="translateResult" aria-live="polite">
+          <span class="result-placeholder">Translation will appear here...</span>
+        </div>
+        <div class="translate-box-footer">
+          <div class="confidence-wrap">
+            <span class="confidence-label">Confidence</span>
+            <span class="confidence-value" id="confidenceValue">—</span>
+            <div class="confidence-bar-wrap">
+              <div class="confidence-bar" id="confidenceBar"></div>
+            </div>
+          </div>
+          <div class="translate-loading hidden" id="translateLoading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent translations -->
+    <div class="recent-section">
+      <div class="recent-header">
+        <h3>Recent Translations</h3>
+        <a href="#" class="link" data-page="history">View all →</a>
+      </div>
+      <div class="recent-list" id="recentList">
+        <div class="empty-state">
+          <span>📝</span>
+          <p>No translations yet. Start translating above!</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: HISTORY
+     style="display:none" — JS sets style.display="block" via showPage()
+═══════════════════════════════════════════════════════════════ -->
+<main id="pageHistory" class="page" style="display:none">
+  <div class="container page-container">
+
+    <div class="page-header">
+      <div>
+        <h1>Translation History</h1>
+        <p>All your past translations, searchable and reusable</p>
+      </div>
+      <button class="btn btn-danger btn-sm" id="btnClearHistory">Clear all</button>
+    </div>
+
+    <div class="history-filters">
+      <input
+        type="search"
+        class="search-input"
+        id="historySearch"
+        placeholder="Search translations..."
+        aria-label="Search history"
+      />
+      <select class="filter-select" id="historyLangFilter" aria-label="Filter by language">
+        <option value="">All languages</option>
+      </select>
+      <select class="filter-select" id="historySortFilter" aria-label="Sort order">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+      </select>
+    </div>
+
+    <div class="history-list" id="historyList" aria-live="polite">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading history...</p>
+      </div>
+    </div>
+
+    <div class="pagination" id="historyPagination"></div>
+
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: ADMIN
+     style="display:none" — JS sets style.display="block" via showPage()
+═══════════════════════════════════════════════════════════════ -->
+<main id="pageAdmin" class="page" style="display:none">
+  <div class="container page-container">
+
+    <div class="page-header">
+      <div>
+        <h1>Admin Panel</h1>
+        <p>Platform-wide metrics and user management</p>
+      </div>
+      <span class="badge badge-admin">Admin access</span>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">👤</div>
+        <div class="kpi-body">
+          <div class="kpi-label">Total Users</div>
+          <div class="kpi-value" id="kpiUsers">—</div>
+          <div class="kpi-sub" id="kpiUsersSub">+12 this week</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🌐</div>
+        <div class="kpi-body">
+          <div class="kpi-label">Daily Translations</div>
+          <div class="kpi-value" id="kpiTranslations">—</div>
+          <div class="kpi-sub">+8% vs yesterday</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">⚡</div>
+        <div class="kpi-body">
+          <div class="kpi-label">Avg Response Time</div>
+          <div class="kpi-value" id="kpiResponseTime">—</div>
+          <div class="kpi-sub">Within SLA</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">❌</div>
+        <div class="kpi-body">
+          <div class="kpi-label">Failed Translations</div>
+          <div class="kpi-value" id="kpiFailed">—</div>
+          <div class="kpi-sub">2.1% error rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="charts-row">
+      <div class="chart-card chart-card-wide">
+        <h3>Translation volume — last 14 days</h3>
+        <div class="chart-wrap">
+          <canvas id="volumeChart" aria-label="Translation volume chart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Top language pairs</h3>
+        <div class="pairs-list" id="topPairsList">
+          <div class="loading-state"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User management table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3>User Management</h3>
+        <input type="search" class="search-input search-sm" id="adminUserSearch" placeholder="Search users..." aria-label="Search users" />
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="usersTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Translations</th>
+              <th>Joined</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr><td colspan="6" class="table-loading"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="adminPagination"></div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: PROFILE
+     style="display:none" — JS sets style.display="block" via showPage()
+═══════════════════════════════════════════════════════════════ -->
+<main id="pageProfile" class="page" style="display:none">
+  <div class="container page-container page-container-narrow">
+
+    <h1 class="page-title">Profile Settings</h1>
+
+    <!-- Profile card -->
+    <div class="profile-card">
+      <div class="profile-avatar-row">
+        <div class="profile-avatar" id="profileAvatar">JD</div>
+        <div class="profile-info">
+          <div class="profile-name" id="profileName">John Doe</div>
+          <div class="profile-email" id="profileEmail">john@example.com</div>
+          <div class="profile-plan">Free Plan</div>
+        </div>
+      </div>
+
+      <form class="profile-form" id="profileForm" novalidate>
+        <div class="form-group">
+          <label for="profileNameInput">Full name</label>
+          <input type="text" id="profileNameInput" class="form-input" placeholder="Your full name" autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="profileEmailInput">Email address</label>
+          <input type="email" id="profileEmailInput" class="form-input" placeholder="your@email.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="profilePasswordInput">New password <span class="label-hint">(leave blank to keep current)</span></label>
+          <input type="password" id="profilePasswordInput" class="form-input" placeholder="New password" autocomplete="new-password" />
+        </div>
+        <div class="form-error hidden" id="profileError" role="alert"></div>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </form>
+    </div>
+
+    <!-- Preferences -->
+    <div class="prefs-card">
+      <h3>Preferences</h3>
+      <div class="pref-list">
+        <div class="pref-item">
+          <div class="pref-info">
+            <span class="pref-label">Dark mode</span>
+            <span class="pref-desc">Use dark color scheme</span>
+          </div>
+          <label class="toggle" aria-label="Toggle dark mode">
+            <input type="checkbox" id="prefDarkMode" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-item">
+          <div class="pref-info">
+            <span class="pref-label">Auto-detect language</span>
+            <span class="pref-desc">Automatically identify source language</span>
+          </div>
+          <label class="toggle" aria-label="Toggle auto-detect">
+            <input type="checkbox" id="prefAutoDetect" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-item">
+          <div class="pref-info">
+            <span class="pref-label">Save history</span>
+            <span class="pref-desc">Store translation history</span>
+          </div>
+          <label class="toggle" aria-label="Toggle save history">
+            <input type="checkbox" id="prefSaveHistory" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="pref-item">
+          <div class="pref-info">
+            <span class="pref-label">Email notifications</span>
+            <span class="pref-desc">Product updates and tips</span>
+          </div>
+          <label class="toggle" aria-label="Toggle email notifications">
+            <input type="checkbox" id="prefEmailNotif" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="danger-card">
+      <h3>Danger Zone</h3>
+      <div class="danger-item">
+        <div class="danger-info">
+          <span class="danger-label">Delete account</span>
+          <span class="danger-desc">Permanently remove your account and all data</span>
+        </div>
+        <button class="btn btn-danger" id="btnDeleteAccount">Delete</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODAL: LOGIN
+     style="display:none" — JS sets style.display="flex" via openModal()
+     NOTE: NO .hidden class — modals use inline style only
+═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalLogin" style="display:none" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+  <div class="modal">
+    <button class="modal-close" id="closeLogin" aria-label="Close login modal">✕</button>
+    <div class="modal-header">
+      <h2 id="loginTitle">Welcome back</h2>
+      <p>Sign in to your LinguaFlow account</p>
+    </div>
+    <form class="modal-form" id="loginForm" novalidate>
+      <div class="form-error hidden" id="loginError" role="alert"></div>
+      <div class="form-group">
+        <label for="loginEmail">Email address</label>
+        <input type="email" id="loginEmail" class="form-input" placeholder="your@email.com" autocomplete="email" required />
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" autocomplete="current-password" required />
+      </div>
+      <div class="form-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="rememberMe" />
+          <span>Remember me</span>
+        </label>
+        <a href="#" class="link">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="btnLoginSubmit">Sign in</button>
+      <p class="modal-switch">Don't have an account? <a href="#" id="switchToRegister" class="link">Sign up free</a></p>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODAL: REGISTER
+     style="display:none" — JS sets style.display="flex" via openModal()
+     NOTE: NO .hidden class — modals use inline style only
+═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalRegister" style="display:none" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+  <div class="modal">
+    <button class="modal-close" id="closeRegister" aria-label="Close register modal">✕</button>
+    <div class="modal-header">
+      <h2 id="registerTitle">Create account</h2>
+      <p>Start translating in seconds — no credit card required</p>
+    </div>
+    <form class="modal-form" id="registerForm" novalidate>
+      <div class="form-error hidden" id="registerError" role="alert"></div>
+      <div class="form-group">
+        <label for="registerName">Full name</label>
+        <input type="text" id="registerName" class="form-input" placeholder="Jane Smith" autocomplete="name" required />
+      </div>
+      <div class="form-group">
+        <label for="registerEmail">Email address</label>
+        <input type="email" id="registerEmail" class="form-input" placeholder="your@email.com" autocomplete="email" required />
+      </div>
+      <div class="form-group">
+        <label for="registerPassword">Password</label>
+        <input type="password" id="registerPassword" class="form-input" placeholder="Min 8 chars, 1 uppercase, 1 number" autocomplete="new-password" required />
+      </div>
+      <div class="form-group">
+        <label for="registerConfirm">Confirm password</label>
+        <input type="password" id="registerConfirm" class="form-input" placeholder="Repeat password" autocomplete="new-password" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="btnRegisterSubmit">Create account</button>
+      <p class="modal-switch">Already have an account? <a href="#" id="switchToLogin" class="link">Sign in</a></p>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODAL: CONFIRM
+     style="display:none" — JS sets style.display="flex" via openModal()
+     NOTE: NO .hidden class — modals use inline style only
+═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalConfirm" style="display:none" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2 id="confirmTitle">Are you sure?</h2>
+      <p id="confirmMessage">This action cannot be undone.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="btnConfirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="btnConfirmOk">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════════════════════ -->
+<script src="/static/js/main.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/translate.js"></script>
+<script src="/static/js/history.js"></script>
+<script src="/static/js/profile.js"></script>
+<script src="/static/js/admin.js"></script>
+
+</body>
+</html>
