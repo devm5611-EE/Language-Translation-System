@@ -27,7 +27,7 @@
 ## ✨ Features
 
 ### Core Features
-- 🌍 **100+ Languages** - Translate between any language pair
+- 🌍 **40+ Languages** - Translate between any language pair
 - 🤖 **AI Models** - 2 Groq models (Llama 3.3 70B, Llama 3.1 8B)
 - 🔍 **Auto-Detection** - Automatic source language detection
 - 📚 **Translation History** - Save and search past translations
