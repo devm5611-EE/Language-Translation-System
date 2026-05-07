@@ -1,6 +1,6 @@
 # LinguaFlow - AI Translation Application
 
-**AI-powered translation service supporting 100+ languages with real-time translation, language detection, and translation history.**
+**AI-powered translation service supporting 40+ languages with real-time translation, language detection, and translation history.**
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.0.3-green.svg)](https://flask.palletsprojects.com/)
