@@ -1,9 +1,9 @@
-# ── Secrets — NEVER commit ──────────────────────────────
+# Environment variables — NEVER commit these
 .env
 .env.*
 *.env
 
-# ── Python ───────────────────────────────────────────────
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
@@ -15,24 +15,28 @@ build/
 *.egg
 .eggs/
 
-# ── Virtual environments ─────────────────────────────────
+# Virtual environments
 venv/
 env/
 .venv/
 ENV/
-linguaflow/venv/
 
-# ── Logs ─────────────────────────────────────────────────
+# Logs
 *.log
 logs/
-linguaflow/logs/
 
-# ── IDE ──────────────────────────────────────────────────
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# ── OS ───────────────────────────────────────────────────
+# OS
 .DS_Store
 Thumbs.db
+
+# MongoDB
+*.db
+
+# Node (if any frontend tooling)
+node_modules/
