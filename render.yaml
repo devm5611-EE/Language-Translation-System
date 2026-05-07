@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: linguaflow
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: cd linguaflow && pip install -r requirements.txt
+    startCommand: cd linguaflow && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app
+    envVars:
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FLASK_DEBUG
+        value: False
+      - key: MONGODB_URI
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: ADMIN_EMAIL
+        value: admin@linguaflow.com
+      - key: JWT_EXPIRY_HOURS
+        value: 24
+      - key: MAX_TEXT_LENGTH
+        value: 5000
