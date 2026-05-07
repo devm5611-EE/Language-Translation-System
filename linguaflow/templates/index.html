@@ -4,12 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LinguaFlow — AI Translation</title>
-  <link rel="stylesheet" href="/static/css/style.css" />
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style" />
+  <link rel="preload" href="{{ url_for('static', filename='js/main.js') }}" as="script" />
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" onerror="this.onerror=null;document.body.innerHTML='<div style=&quot;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#ef4444;color:#fff;padding:2rem;border-radius:1rem;text-align:center;max-width:400px;&quot;><h2>⚠️ CSS Loading Error</h2><p>Unable to load stylesheets. Please check your connection and refresh.</p><button onclick=&quot;location.reload()&quot; style=&quot;margin-top:1rem;padding:0.5rem 1rem;background:#fff;color:#ef4444;border:none;border-radius:0.5rem;cursor:pointer;font-weight:600;&quot;>Reload</button></div>';" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
+
+<!-- NoScript warning -->
+<noscript>
+  <div style="position:fixed;top:0;left:0;right:0;background:#ef4444;color:#fff;padding:1rem;text-align:center;z-index:9999;font-family:system-ui,sans-serif;">
+    ⚠️ JavaScript is required for LinguaFlow to function properly. Please enable JavaScript in your browser.
+  </div>
+</noscript>
 
 <!-- ═══════════════════════════════════════════════════════════════
      NAVIGATION
@@ -637,12 +649,12 @@
 <!-- ═══════════════════════════════════════════════════════════════
      SCRIPTS
 ═══════════════════════════════════════════════════════════════ -->
-<script src="/static/js/main.js"></script>
-<script src="/static/js/auth.js"></script>
-<script src="/static/js/translate.js"></script>
-<script src="/static/js/history.js"></script>
-<script src="/static/js/profile.js"></script>
-<script src="/static/js/admin.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+<script src="{{ url_for('static', filename='js/translate.js') }}"></script>
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 
 </body>
 </html>

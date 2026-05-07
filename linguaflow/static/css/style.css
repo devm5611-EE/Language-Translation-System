@@ -171,7 +171,7 @@ ul { list-style: none; }
 }
 
 /*
- * PAGES — hidden by default via CSS.
+ * PAGES — hidden by default via CSS EXCEPT home page.
  * JS controls visibility exclusively through style.display.
  * showPage() sets style.display="block" on the target page
  * and style.display="none" on all others.
@@ -179,6 +179,7 @@ ul { list-style: none; }
  * always driven by the inline style attribute.
  */
 .page { display: none; }
+#pageHome { display: block; } /* Home page visible by default */
 
 /*
  * .hidden — utility class for NAV ELEMENTS ONLY (navGuest, navUser,

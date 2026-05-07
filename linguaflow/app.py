@@ -152,6 +152,36 @@ def create_app() -> Flask:
         
         status_code = 200 if checks["status"] == "ok" else 503
         return jsonify(checks), status_code
+    
+    # ── Diagnostic endpoint for deployment debugging ──────────────────────────
+    @app.route("/diagnostic")
+    def diagnostic():
+        """Diagnostic page to help debug deployment issues"""
+        import os
+        import sys
+        
+        info = {
+            "app_status": "running",
+            "python_version": sys.version,
+            "flask_debug": app.debug,
+            "static_folder": app.static_folder,
+            "static_url_path": app.static_url_path,
+            "template_folder": app.template_folder,
+            "environment": {
+                "FLASK_DEBUG": os.getenv("FLASK_DEBUG"),
+                "MONGODB_URI": "***" if os.getenv("MONGODB_URI") else "NOT SET",
+                "GROQ_API_KEY": "***" if os.getenv("GROQ_API_KEY") else "NOT SET",
+                "REDIS_URL": "***" if os.getenv("REDIS_URL") else "NOT SET",
+            },
+            "static_files_exist": {
+                "css/style.css": os.path.exists(os.path.join(app.static_folder, "css", "style.css")),
+                "js/main.js": os.path.exists(os.path.join(app.static_folder, "js", "main.js")),
+                "js/auth.js": os.path.exists(os.path.join(app.static_folder, "js", "auth.js")),
+            },
+            "routes": [str(rule) for rule in app.url_map.iter_rules()],
+        }
+        
+        return jsonify(info), 200
 
     # ── Serve SPA for all non-API routes ─────────────────────────────────────
     @app.route("/")
@@ -197,7 +227,8 @@ def create_app() -> Flask:
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['X-XSS-Protection'] = '1; mode=block'
-        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com"
+        # Relaxed CSP for production - allow inline styles and scripts needed for the app
+        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'"
         return response
     
     # HTTPS enforcement - only for local development

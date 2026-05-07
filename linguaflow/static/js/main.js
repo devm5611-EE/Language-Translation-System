@@ -8,14 +8,43 @@ window.App = { token: null, user: null, currentPage: "home", languages: [] };
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  initTheme();
-  restoreSession();   // must run before initNav so auth-required links are correct
-  initNav();
-  initHamburger();
-  bindGlobalButtons();
-  loadLanguages();
-  // Show home page properly on first load
-  showPage("home");
+  console.log("🚀 LinguaFlow initializing...");
+  
+  try {
+    initTheme();
+    console.log("✓ Theme initialized");
+    
+    restoreSession();   // must run before initNav so auth-required links are correct
+    console.log("✓ Session restored");
+    
+    initNav();
+    console.log("✓ Navigation initialized");
+    
+    initHamburger();
+    console.log("✓ Hamburger menu initialized");
+    
+    bindGlobalButtons();
+    console.log("✓ Global buttons bound");
+    
+    loadLanguages();
+    console.log("✓ Languages loading...");
+    
+    // Show home page properly on first load
+    showPage("home");
+    console.log("✓ Home page displayed");
+    
+    console.log("🎉 LinguaFlow ready!");
+  } catch (error) {
+    console.error("❌ Initialization error:", error);
+    // Show error to user
+    document.body.innerHTML += `
+      <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#ef4444;color:#fff;padding:2rem;border-radius:1rem;text-align:center;z-index:9999;max-width:400px;">
+        <h2 style="margin:0 0 1rem 0;">⚠️ Initialization Error</h2>
+        <p style="margin:0;font-size:0.9rem;">${error.message}</p>
+        <button onclick="location.reload()" style="margin-top:1rem;padding:0.5rem 1rem;background:#fff;color:#ef4444;border:none;border-radius:0.5rem;cursor:pointer;font-weight:600;">Reload Page</button>
+      </div>
+    `;
+  }
 });
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
@@ -94,6 +123,8 @@ function syncNavUI() {
  * Does NOT do auth checks. Call navigateTo() for user-triggered navigation.
  */
 function showPage(page) {
+  console.log(`📄 Showing page: ${page}`);
+  
   // Hide all pages
   document.querySelectorAll("main.page").forEach(p => {
     p.style.display = "none";
@@ -103,10 +134,15 @@ function showPage(page) {
   // Show target page
   const pageId = "page" + page.charAt(0).toUpperCase() + page.slice(1);
   const target = document.getElementById(pageId);
-  if (target) {
-    target.style.display = "block";
-    target.classList.add("active");
+  
+  if (!target) {
+    console.error(`❌ Page element not found: ${pageId}`);
+    return;
   }
+  
+  target.style.display = "block";
+  target.classList.add("active");
+  console.log(`✓ Page ${page} is now visible`);
 
   App.currentPage = page;
 
