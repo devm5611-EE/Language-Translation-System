@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:$PORT --workers 1 --worker-class sync --timeout 120 --preload --log-level info wsgi:application
+web: gunicorn -c gunicorn.conf.py wsgi:application
