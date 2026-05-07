@@ -1,1 +1,1 @@
-web: cd linguaflow && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app
+web: gunicorn --bind 0.0.0.0:$PORT --workers 1 --worker-class sync --timeout 120 --preload --log-level info wsgi:application

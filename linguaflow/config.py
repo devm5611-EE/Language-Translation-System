@@ -43,7 +43,7 @@ class Config:
     ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@linguaflow.com")
     
     # CORS
-    ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5000").split(",")
+    ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5000,https://*.onrender.com").split(",")
     
     # Redis
     REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")

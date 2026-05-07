@@ -13,13 +13,26 @@ from flask_limiter.util import get_remote_address
 from config import Config
 
 # ── Logging ───────────────────────────────────────────────────────────────────
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(name)s — %(message)s",
-    handlers=[
+# Create logs directory if it doesn't exist
+logs_dir = os.path.join(os.path.dirname(__file__), "logs")
+os.makedirs(logs_dir, exist_ok=True)
+
+# Configure logging based on environment
+if os.getenv("FLASK_DEBUG", "False").lower() == "true":
+    log_level = logging.DEBUG
+    log_handlers = [
         logging.StreamHandler(),
-        logging.FileHandler(os.path.join(os.path.dirname(__file__), "logs", "app.log")),
-    ],
+        logging.FileHandler(os.path.join(logs_dir, "app.log")),
+    ]
+else:
+    # Production logging - less verbose, stdout only for Render
+    log_level = logging.INFO
+    log_handlers = [logging.StreamHandler()]
+
+logging.basicConfig(
+    level=log_level,
+    format="%(asctime)s [%(levelname)s] %(name)s — %(message)s",
+    handlers=log_handlers,
 )
 logger = logging.getLogger(__name__)
 
@@ -31,7 +44,20 @@ def create_app() -> Flask:
         static_folder="static",
         static_url_path="/static",
     )
-    app.config.from_object(Config)
+    
+    # Load configuration with better error handling
+    try:
+        app.config.from_object(Config)
+        logger.info("Configuration loaded successfully")
+    except ValueError as e:
+        logger.error(f"Configuration error: {e}")
+        # In production, we might want to continue with defaults for some values
+        if not os.getenv("FLASK_DEBUG", "False").lower() == "true":
+            logger.warning("Running with minimal configuration due to missing environment variables")
+            # Set minimal required config
+            app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'fallback-secret-key-change-in-production')
+        else:
+            raise
 
     # CORS — restrict to allowed origins from environment
     CORS(app, resources={
@@ -174,16 +200,20 @@ def create_app() -> Flask:
         response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com"
         return response
     
-    # HTTPS enforcement in production
+    # HTTPS enforcement - only for local development
+    # Render handles HTTPS termination, so we don't need to enforce it in the app
     @app.before_request
     def enforce_https():
-        if not app.debug and not request.is_secure:
+        # Only enforce HTTPS in local development when not using a reverse proxy
+        if app.debug and not request.is_secure and not request.headers.get('X-Forwarded-Proto'):
             url = request.url.replace('http://', 'https://', 1)
             return redirect(url, code=301)
     
     return app
 
 
+# Create the WSGI application object for Gunicorn
+app = create_app()
+
 if __name__ == "__main__":
-    app = create_app()
     app.run(debug=True, host="0.0.0.0", port=5000, use_reloader=True)
