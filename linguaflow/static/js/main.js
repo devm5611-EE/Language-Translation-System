@@ -366,19 +366,37 @@ function showToast(title, message = "", type = "info", duration = 4500) {
 }
 window.showToast = showToast;
 
-// ── API helper ────────────────────────────────────────────────────────────────
-async function apiFetch(url, opts = {}) {
+// ── API helper with timeout ───────────────────────────────────────────────────
+async function apiFetch(url, opts = {}, timeout = 30000) {
   const headers = {
     "Content-Type": "application/json",
     ...(App.token ? { Authorization: `Bearer ${App.token}` } : {}),
     ...(opts.headers || {}),
   };
 
+  // Create abort controller for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
   let res, data;
   try {
-    res  = await fetch(url, { ...opts, headers });
-    data = await res.json();
+    res  = await fetch(url, { ...opts, headers, signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    // Try to parse JSON
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      throw new Error(`Invalid server response: ${res.status}`);
+    }
   } catch (networkErr) {
+    clearTimeout(timeoutId);
+    
+    // Handle timeout
+    if (networkErr.name === 'AbortError') {
+      throw new Error(`Request timeout after ${timeout/1000}s - server not responding`);
+    }
+    
     throw new Error("Network error — is the server running?");
   }
 

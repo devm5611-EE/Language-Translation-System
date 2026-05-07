@@ -1,14 +1,27 @@
 from flask import Blueprint, request, jsonify
 import logging
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from services.auth_service import register_user, login_user
 from utils.jwt_handler import revoke_token, extract_token
 
 logger = logging.getLogger(__name__)
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
+# Rate limiter instance (will be initialized in app.py)
+limiter = None
+
+def init_limiter(app_limiter):
+    global limiter
+    limiter = app_limiter
+
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
+    # Apply rate limiting
+    if limiter:
+        limiter.limit("3 per minute")(lambda: None)()
+    
     data = request.get_json(silent=True) or {}
     name     = (data.get("name")     or "").strip()
     email    = (data.get("email")    or "").strip()
@@ -37,6 +50,10 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
+    # Apply rate limiting
+    if limiter:
+        limiter.limit("5 per minute")(lambda: None)()
+    
     data = request.get_json(silent=True) or {}
     email    = (data.get("email")    or "").strip()
     password =  data.get("password") or ""

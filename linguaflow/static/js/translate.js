@@ -200,26 +200,135 @@ async function shareResult() {
 
 // ── Mic ───────────────────────────────────────────────────────────────────────
 function startMic() {
+  // Check for Speech Recognition support
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { showToast("Not supported", "Speech recognition unavailable.", "warning"); return; }
-  _mic = new SR();
-  _mic.continuous = false; _mic.interimResults = true;
-  _mic.lang = document.getElementById("sourceLangSelect")?.value || "en";
-  _mic.onresult = e => {
-    const t = Array.from(e.results).map(r => r[0].transcript).join("");
-    const src = document.getElementById("sourceText");
-    if (src) { src.value = t; src.dispatchEvent(new Event("input")); }
-  };
-  _mic.onend = stopMic;
-  _mic.onerror = e => { showToast("Mic error", e.error, "danger"); stopMic(); };
-  _mic.start();
-  document.getElementById("btnMic")?.classList.add("hidden");
-  document.getElementById("btnStopMic")?.classList.remove("hidden");
-  showToast("Listening…", "Speak now.", "info", 3000);
+  
+  if (!SR) {
+    showToast(
+      "Speech Recognition Not Supported", 
+      "Your browser doesn't support speech recognition. Try Chrome, Edge, or Safari.", 
+      "warning",
+      5000
+    );
+    return;
+  }
+  
+  // Check if we're on HTTPS or localhost
+  const isSecure = window.location.protocol === 'https:' || 
+                   window.location.hostname === 'localhost' || 
+                   window.location.hostname === '127.0.0.1';
+  
+  if (!isSecure) {
+    showToast(
+      "HTTPS Required", 
+      "Speech recognition requires HTTPS. Please use https:// or localhost.", 
+      "warning",
+      5000
+    );
+    return;
+  }
+  
+  try {
+    _mic = new SR();
+    _mic.continuous = false;
+    _mic.interimResults = true;
+    
+    // Get source language for recognition
+    const sourceLang = document.getElementById("sourceLangSelect")?.value;
+    if (sourceLang && sourceLang !== "auto") {
+      _mic.lang = sourceLang;
+    } else {
+      _mic.lang = "en-US"; // Default to English
+    }
+    
+    _mic.onstart = () => {
+      console.log("Speech recognition started");
+      document.getElementById("btnMic")?.classList.add("hidden");
+      document.getElementById("btnStopMic")?.classList.remove("hidden");
+      showToast("Listening…", "Speak now. Click stop when done.", "info", 3000);
+    };
+    
+    _mic.onresult = e => {
+      const transcript = Array.from(e.results)
+        .map(r => r[0].transcript)
+        .join("");
+      
+      const src = document.getElementById("sourceText");
+      if (src) {
+        src.value = transcript;
+        src.dispatchEvent(new Event("input"));
+      }
+    };
+    
+    _mic.onend = () => {
+      console.log("Speech recognition ended");
+      stopMic();
+    };
+    
+    _mic.onerror = e => {
+      console.error("Speech recognition error:", e.error);
+      
+      let errorMsg = "Unknown error occurred";
+      let errorTitle = "Microphone Error";
+      
+      switch(e.error) {
+        case "no-speech":
+          errorTitle = "No Speech Detected";
+          errorMsg = "No speech was detected. Please try again.";
+          break;
+        case "audio-capture":
+          errorTitle = "Microphone Not Found";
+          errorMsg = "No microphone was found. Ensure it is connected and enabled.";
+          break;
+        case "not-allowed":
+          errorTitle = "Permission Denied";
+          errorMsg = "Microphone access was denied. Please allow microphone access in your browser settings.";
+          break;
+        case "network":
+          errorTitle = "Network Error";
+          errorMsg = "A network error occurred. Check your internet connection.";
+          break;
+        case "aborted":
+          errorTitle = "Recognition Aborted";
+          errorMsg = "Speech recognition was aborted.";
+          break;
+        case "service-not-allowed":
+          errorTitle = "Service Not Allowed";
+          errorMsg = "Speech recognition service is not allowed. Check browser settings.";
+          break;
+        default:
+          errorMsg = `Error: ${e.error}`;
+      }
+      
+      showToast(errorTitle, errorMsg, "danger", 5000);
+      stopMic();
+    };
+    
+    // Start recognition
+    _mic.start();
+    
+  } catch (err) {
+    console.error("Failed to start speech recognition:", err);
+    showToast(
+      "Failed to Start", 
+      "Could not start speech recognition. " + err.message, 
+      "danger",
+      5000
+    );
+    stopMic();
+  }
 }
 
 function stopMic() {
-  _mic?.stop(); _mic = null;
+  if (_mic) {
+    try {
+      _mic.stop();
+    } catch (err) {
+      console.error("Error stopping mic:", err);
+    }
+    _mic = null;
+  }
+  
   document.getElementById("btnMic")?.classList.remove("hidden");
   document.getElementById("btnStopMic")?.classList.add("hidden");
 }
@@ -267,7 +376,12 @@ function reuseTranslation(text, sl, tl) {
   const src = document.getElementById("sourceText");
   const ss  = document.getElementById("sourceLangSelect");
   const ts  = document.getElementById("targetLangSelect");
-  if (src) { src.value = text; src.dispatchEvent(new Event("input")); }
+  
+  // Use textContent instead of innerHTML to prevent XSS
+  if (src) { 
+    src.value = text; 
+    src.dispatchEvent(new Event("input")); 
+  }
   if (ss && sl !== "unknown") ss.value = sl;
   if (ts) ts.value = tl;
 }

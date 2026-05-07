@@ -61,12 +61,16 @@ def get_db():
                 serverSelectionTimeoutMS=10000,
                 connectTimeoutMS=10000,
                 socketTimeoutMS=10000,
+                maxPoolSize=50,           # Connection pooling
+                minPoolSize=10,           # Minimum connections
+                maxIdleTimeMS=45000,      # Close idle connections
+                waitQueueTimeoutMS=10000, # Wait time for connection
                 tlsAllowInvalidCertificates=True,
             )
             _client.admin.command("ping")
             _db = _client[Config.DB_NAME]
             _create_indexes(_db)
-            logger.info("✅ MongoDB Atlas connected successfully.")
+            logger.info("✅ MongoDB Atlas connected successfully with connection pooling.")
 
         except Exception as e:
             _client = None
@@ -79,12 +83,24 @@ def get_db():
 
 def _create_indexes(db):
     try:
+        # User indexes
         db.users.create_index([("email", ASCENDING)],  unique=True, background=True)
         db.users.create_index([("created_at", DESCENDING)],          background=True)
+        db.users.create_index([("is_active", ASCENDING)],            background=True)
+        db.users.create_index([("role", ASCENDING)],                 background=True)
+        
+        # Translation indexes
         db.translations.create_index(
             [("user_id", ASCENDING), ("created_at", DESCENDING)],    background=True
         )
         db.translations.create_index([("created_at", DESCENDING)],   background=True)
+        db.translations.create_index([("source_lang", ASCENDING)],   background=True)
+        db.translations.create_index([("target_lang", ASCENDING)],   background=True)
+        db.translations.create_index([("confidence", DESCENDING)],   background=True)
+        db.translations.create_index(
+            [("user_id", ASCENDING), ("target_lang", ASCENDING)],    background=True
+        )
+        
         logger.info("MongoDB indexes ensured.")
     except Exception as e:
         logger.warning(f"Index creation warning (non-fatal): {e}")

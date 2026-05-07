@@ -31,15 +31,18 @@ class TranslationModel:
     @staticmethod
     def find_by_user(user_id, skip=0, limit=20, source_lang=None,
                      target_lang=None, search=None, sort="newest"):
+        import re
         query = {"user_id": str(user_id)}
         if source_lang:
             query["source_lang"] = source_lang
         if target_lang:
             query["target_lang"] = target_lang
         if search:
+            # Escape special regex characters to prevent NoSQL injection
+            escaped_search = re.escape(search.strip())
             query["$or"] = [
-                {"source_text": {"$regex": search, "$options": "i"}},
-                {"translated_text": {"$regex": search, "$options": "i"}},
+                {"source_text": {"$regex": escaped_search, "$options": "i"}},
+                {"translated_text": {"$regex": escaped_search, "$options": "i"}},
             ]
         sort_dir = -1 if sort == "newest" else 1
         return list(TranslationModel.col().find(query).sort("created_at", sort_dir).skip(skip).limit(limit))
